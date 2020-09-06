@@ -3,7 +3,8 @@ function sim = cpc_type2_SDT_sim(d, noise, c, Nratings, Ntrials)
 % sim = type2_SDT_sim(d, noise, c, c1, c2, Ntrials)
 %
 % INPUTS
-% d - type 1 dprime
+% d - type 1 dprime % 아마도 얼마나 쉽게 구별할 수 있는가?에 관한 stimulus간 distance에 대한
+% factor로 보임. d가 클 수록 아래에 있는 stimulus 0, 1 에 대한 분포의 거리가 멀어짐.
 % noise - standard deviation of noise to be added to type 1 internal
 % response for type 2 judgment. If noise is a 1 x 2 vector then this will
 % simulate response-conditional type 2 data where noise = [sigma_rS1
@@ -37,17 +38,17 @@ S1mu = -d/2;
 S2mu = d/2;
 
 % Initialise response arrays
-nC_rS1 = zeros(1, length(c1)+1);
-nI_rS1 = zeros(1, length(c1)+1);
-nC_rS2 = zeros(1, length(c2)+1);
-nI_rS2 = zeros(1, length(c2)+1);
+nC_rS1 = zeros(1, length(c1)+1); % 즉, S1이라고 잘 대답한 경우의 수
+nI_rS1 = zeros(1, length(c1)+1); % 즉, S1이라고 잘못 대답한 경우의 수
+nC_rS2 = zeros(1, length(c2)+1); % 즉, S2라고 잘 대답한 경우의 수
+nI_rS2 = zeros(1, length(c2)+1); % 즉, S2라고 잘못 대답한 경우의 수
 
 for t = 1:Ntrials
-    s = round(rand);
+    s = round(rand); % 50% 확률로 0 아니면 1의 값이 나옴. 즉, stimulus는 0 또는 1로 랜덤하게 결정된다.
     
     % Type 1 SDT model
     if s == 1
-        x = normrnd(S2mu, 1);
+        x = normrnd(S2mu, 1); % 정규분포 난수
     else
         x = normrnd(S1mu, 1);
     end
@@ -74,6 +75,9 @@ for t = 1:Ntrials
             x2 = x;
         end
     end
+    
+    % 아마 Stimulus S1이라는 것은 왼쪽 원에 있는 points의 수가 더 많은 경우이고,
+    % response S1이라는 것은 왼쪽 원에 있는 points의 수가 많다고 답한 경우를 말하는 것 같다.
     
     % Generate confidence ratings
     if s == 0 && x < c      % stimulus S1 and response S1

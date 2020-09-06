@@ -20,6 +20,7 @@
 % 
 % *REQUIRED:*
 % 
+addpath(genpath('C:\Psych\HMeta-d\CPC_metacog_tutorial\'))
 % To run steps 1-5 you will need to have the folder and subfolders supplied 
 % for this tutorial added to your matlab path. If you would like to run step 6 
 % onwards on your local device, you will need to have JAGS (an MCMC language similar 
@@ -78,6 +79,19 @@ subplot(1,2,1)
 cpc_plot_confidence(sim1.lowNoise, 'LOW NOISE', 'obs');
 subplot(1,2,2)
 cpc_plot_confidence(sim1.highNoise, 'HIGH NOISE', 'obs');
+
+%{
+ 즉, noise가 낮을 때: 메타인지 능력이 높을 때. 
+Incorrect라고 관찰 되었을 경우 Confidence가 굉장히 낮음.
+즉, 잘 못하는 것을 자신이 잘 못한다고 인지한 경우.
+반대로, 잘 한 경우에는 잘 했다고 confidence rate이 높긴하지만
+Incorrect인 경우에 비해 비례적으로 커지지 않음.
+
+정리하면 low noise, 즉, 메타인지 능력이 좋은 경우에는
+정답을 맞춘 경우에는 confidence가 더 커지는 경향이 있고,
+정답을 틀린 경우에는 confidence가 갈수록 작아지는 경향이 있다.
+
+%}
 %% 
 % 
 % 
@@ -336,6 +350,28 @@ sim4.highMetad.responses = cpc_metad_sim(sim4.d, sim4.metad.high, sim4.c, sim4.N
 
 sim4.lowMetad.fit = fit_meta_d_MLE(sim4.lowMetad.responses.nR_S1, sim4.lowMetad.responses.nR_S2);
 sim4.highMetad.fit = fit_meta_d_MLE(sim4.highMetad.responses.nR_S1, sim4.highMetad.responses.nR_S2);
+
+a = zeros(size(res(1).responses.nR_S1));
+b = zeros(size(res(1).responses.nR_S1));
+% 내 데이터 이용해보기
+for i = 1:8
+    a = a + res(i).responses.nR_S1;
+    b = b + res(i).responses.nR_S2;
+end
+
+% 임시로
+% a = a + 1;
+% b = b + 1;
+
+my_struct = struct();
+my_struct.fit = fit_meta_d_MLE(a, b); % MLE를 이용해 fitting 하는 경우
+my_struct.responses.nR_S1 = a;
+my_struct.responses.nR_S2 = b;
+figure;
+cpc_plot_confidence(my_struct,'aa','est')
+cpc_plot_type2roc(my_struct,'aa','est')
+
+
 %% 
 % 
 % 
@@ -346,6 +382,7 @@ sim4.highMetad.fit = fit_meta_d_MLE(sim4.highMetad.responses.nR_S1, sim4.highMet
 
 figure
 cpc_plot_confidence(sim4.highMetad, 'HIGH META-D', 'est');
+figure;
 cpc_plot_type2roc(sim4.highMetad, 'HIGH META-D', 'est');
 %% 
 % 
@@ -355,6 +392,7 @@ cpc_plot_type2roc(sim4.highMetad, 'HIGH META-D', 'est');
 
 figure
 cpc_plot_confidence(sim4.lowMetad, 'LOW META-D', 'est');
+figure;
 cpc_plot_type2roc(sim4.lowMetad, 'LOW META-D', 'est');
 %% 
 % 
@@ -503,7 +541,7 @@ sim6.params.meta_d_sigma = 0.1; % Include some between-subject variability
 % *Simulate the responses and fit the model for different levels of metacognition:*
 % 
 % --> This may take a few minutes...
-
+addpath(genpath('C:\Psych\HMeta-d'))
 for a = 1:length(sim6.params.meta_d)
     for b = 1:sim6.params.Nsims
         % Generate dprime values
@@ -522,6 +560,7 @@ for a = 1:length(sim6.params.meta_d)
     % Fit the model as a group for each level of meta-d
     sim6.fit{a} = fit_meta_d_mcmc_group(sim6.bayesGroup.data{a}.nR_S1, sim6.bayesGroup.data{a}.nR_S2);
 end
+
 %% 
 % 
 % 
